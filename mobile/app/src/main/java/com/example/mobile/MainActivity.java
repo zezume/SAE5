@@ -1,3 +1,4 @@
+// java
 package com.example.mobile;
 
 import android.annotation.SuppressLint;
@@ -18,19 +19,20 @@ public class MainActivity extends AppCompatActivity {
     private TextView questionText;
     private Spinner answerSpinner;
     private Button submitButton;
+    private Button backButton;
 
     private int currentQuestion = 0;
     private String[] questions = {
-            "En moyenne, combien d’heures par jour passez-vous sur votre smartphone ?",
-            "Combien de temps passez-vous chaque jour devant un ordinateur ?",
-            "Combien d’heures de vidéos en streaming regardez-vous par semaine (Netflix, YouTube, Twitch, etc.) ?",
-            "Regardez-vous vos vidéos en qualité :",
-            "À quelle fréquence changez-vous de smartphone ?",
-            "Combien d’appareils numériques possédez-vous actuellement (ordinateur, smartphone, tablette, console, TV connectée, etc.) ?",
-            "Stockez-vous principalement vos photos et fichiers :",
-            "Sauvegardez-vous régulièrement vos mails ou les laissez-vous indéfiniment dans votre boîte ?",
-            "Avez-vous déjà réparé un appareil électronique au lieu de le remplacer ?",
-            "Connaissez-vous l’impact énergétique de vos usages numériques par rapport à la moyenne nationale ?"
+            "1/10 : En moyenne, combien d’heures par jour passez-vous sur votre smartphone ?",
+            "2/10 : Combien de temps passez-vous chaque jour devant un ordinateur ?",
+            "3/10 : Combien d’heures de vidéos en streaming regardez-vous par semaine (Netflix, YouTube, Twitch, etc.) ?",
+            "4/10 : Regardez-vous vos vidéos en qualité :",
+            "5/10 : À quelle fréquence changez-vous de smartphone ?",
+            "6/10 : Combien d’appareils numériques possédez-vous actuellement (ordinateur, smartphone, tablette, console, TV connectée, etc.) ?",
+            "7/10 : Stockez-vous principalement vos photos et fichiers :",
+            "8/10 : Sauvegardez-vous régulièrement vos mails ou les laissez-vous indéfiniment dans votre boîte ?",
+            "9/10 : Avez-vous déjà réparé un appareil électronique au lieu de le remplacer ?",
+            "10/10 : Connaissez-vous l’impact énergétique de vos usages numériques par rapport à la moyenne nationale ?"
     };
 
     private String[][] answers = {
@@ -54,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
         submitButton = findViewById(R.id.submitButton);
+        backButton = findViewById(R.id.backButton);
 
         showQuestion();
 
@@ -74,7 +77,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        backButton.setOnClickListener(v -> {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        });
     }
 
     private void showQuestion() {
