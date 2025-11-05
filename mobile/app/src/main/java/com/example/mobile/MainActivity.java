@@ -1,8 +1,8 @@
 package com.example.mobile;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -10,27 +10,27 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
-
-// MainActivity.java
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private TextView questionText;
     private Spinner answerSpinner;
     private Button submitButton;
+    private Button backButton;
+    private TextToSpeech tts;
 
     private int currentQuestion = 0;
     private String[] questions = {
-            "En moyenne, combien d’heures par jour passez-vous sur votre smartphone ?",
-            "Combien de temps passez-vous chaque jour devant un ordinateur ?",
-            "Combien d’heures de vidéos en streaming regardez-vous par semaine (Netflix, YouTube, Twitch, etc.) ?",
-            "Regardez-vous vos vidéos en qualité :",
-            "À quelle fréquence changez-vous de smartphone ?",
-            "Combien d’appareils numériques possédez-vous actuellement (ordinateur, smartphone, tablette, console, TV connectée, etc.) ?",
-            "Stockez-vous principalement vos photos et fichiers :",
-            "Sauvegardez-vous régulièrement vos mails ou les laissez-vous indéfiniment dans votre boîte ?",
-            "Avez-vous déjà réparé un appareil électronique au lieu de le remplacer ?",
-            "Connaissez-vous l’impact énergétique de vos usages numériques par rapport à la moyenne nationale ?"
+            "1/10 : En moyenne, combien d’heures par jour passez-vous sur votre smartphone ?",
+            "2/10 : Combien de temps passez-vous chaque jour devant un ordinateur ?",
+            "3/10 : Combien d’heures de vidéos en streaming regardez-vous par semaine (Netflix, YouTube, Twitch, etc.) ?",
+            "4/10 : Regardez-vous vos vidéos en qualité :",
+            "5/10 : À quelle fréquence changez-vous de smartphone ?",
+            "6/10 : Combien d’appareils numériques possédez-vous actuellement (ordinateur, smartphone, tablette, console, TV connectée, etc.) ?",
+            "7/10 : Stockez-vous principalement vos photos et fichiers :",
+            "8/10 : Sauvegardez-vous régulièrement vos mails ou les laissez-vous indéfiniment dans votre boîte ?",
+            "9/10 : Avez-vous déjà réparé un appareil électronique au lieu de le remplacer ?",
+            "10/10 : Connaissez-vous l’impact énergétique de vos usages numériques par rapport à la moyenne nationale ?"
     };
 
     private String[][] answers = {
@@ -50,10 +50,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
         submitButton = findViewById(R.id.submitButton);
+        backButton = findViewById(R.id.backButton);
+
+        // Initialisation du TextToSpeech en français
+        tts = new TextToSpeech(this, status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                int res = tts.setLanguage(Locale.FRANCE);
+                if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Toast.makeText(this, "TTS: langue Française non disponible", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Lire la question initiale si déjà affichée
+                    speakCurrentQuestion();
+                }
+            } else {
+                Toast.makeText(this, "TTS non initialisé", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         showQuestion();
 
@@ -66,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
             if (currentQuestion < questions.length) {
                 showQuestion();
             } else {
-                // Lancer l'activité de score
                 Intent intent = new Intent(MainActivity.this, ScoreActivity.class);
                 intent.putExtra("USER_ANSWERS", userAnswers);
                 startActivity(intent);
@@ -74,7 +88,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        backButton.setOnClickListener(v -> {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        });
     }
 
     private void showQuestion() {
@@ -86,6 +105,25 @@ public class MainActivity extends AppCompatActivity {
             submitButton.setText("Terminer");
         } else {
             submitButton.setText("Suivant");
+        }
+        // Lire la question à voix haute
+        speakCurrentQuestion();
+    }
+
+    private void speakCurrentQuestion() {
+        if (tts == null) return;
+        String text = questions[currentQuestion];
+        // Utilise QUEUE_FLUSH pour remplacer l'éventuelle lecture en cours
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "Q" + currentQuestion);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+            tts = null;
         }
     }
 }
