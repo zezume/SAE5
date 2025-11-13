@@ -3,11 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="24dp"
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -19,26 +18,32 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="80dp"/>
+        android:layout_marginTop="80dp" />
 
-    <Button
-        android:id="@+id/btnQuestionnaire"
+    <!-- Conteneur horizontal pour les deux boutons -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Questionnaire"
+        android:orientation="horizontal"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"/>
+        android:layout_marginTop="50dp">
 
-    <Button
-        android:id="@+id/btnScan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scanner un code-barres"
-        app:layout_constraintTop_toBottomOf="@id/btnQuestionnaire"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp"/>
+        <Button
+            android:id="@+id/btnQuestionnaire"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Questionnaire"
+            android:layout_marginEnd="20dp" />
+
+        <Button
+            android:id="@+id/btnScan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scanner" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
