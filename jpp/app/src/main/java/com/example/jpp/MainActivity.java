@@ -55,14 +55,12 @@ public class MainActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.submitButton);
         backButton = findViewById(R.id.backButton);
 
-        // Initialisation du TextToSpeech en français
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
                 int res = tts.setLanguage(Locale.FRANCE);
                 if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Toast.makeText(this, "TTS: langue Française non disponible", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Lire la question initiale si déjà affichée
                     speakCurrentQuestion();
                 }
             } else {
@@ -110,12 +108,21 @@ public class MainActivity extends AppCompatActivity {
         speakCurrentQuestion();
     }
 
+    // java
+    private String normalizeForTts(String text) {
+        if (text == null) return "";
+        // Remplace "2/10" ou "2 / 10" par "2 sur 10"
+        text = text.replaceAll("(\\d+)\\s*/\\s*(\\d+)", "$1 sur $2");
+        return text;
+    }
+
     private void speakCurrentQuestion() {
         if (tts == null) return;
-        String text = questions[currentQuestion];
-        // Utilise QUEUE_FLUSH pour remplacer l'éventuelle lecture en cours
-        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "Q" + currentQuestion);
+        String raw = questions[currentQuestion];
+        String toSpeak = normalizeForTts(raw);
+        tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, "Q" + currentQuestion);
     }
+
 
     @Override
     protected void onDestroy() {
