@@ -3,7 +3,6 @@ package com.example.jpp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -12,12 +11,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class QuestionnaireActivity extends AppCompatActivity {
     private TextView questionText;
     private Spinner answerSpinner;
     private Button submitButton;
     private Button backButton;
     private TextToSpeech tts;
+    private boolean isTtsInitialized = false;
 
     private int currentQuestion = 0;
     private String[] questions = {
@@ -46,14 +46,18 @@ public class MainActivity extends AppCompatActivity {
             {"Oui", "Non"}
     };
 
+    private String[] userAnswers;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_questionnaire);
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
         submitButton = findViewById(R.id.submitButton);
         backButton = findViewById(R.id.backButton);
+
+        userAnswers = new String[questions.length];
 
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
@@ -61,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Toast.makeText(this, "TTS: langue Française non disponible", Toast.LENGTH_SHORT).show();
                 } else {
+                    isTtsInitialized = true;
                     speakCurrentQuestion();
                 }
             } else {
@@ -70,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
 
         showQuestion();
 
-        String[] userAnswers = new String[questions.length];
-
         submitButton.setOnClickListener(v -> {
             int selectedIndex = answerSpinner.getSelectedItemPosition();
             userAnswers[currentQuestion] = String.valueOf(selectedIndex);
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             if (currentQuestion < questions.length) {
                 showQuestion();
             } else {
-                Intent intent = new Intent(MainActivity.this, ScoreActivity.class);
+                Intent intent = new Intent(QuestionnaireActivity.this, ScoreActivity.class);
                 intent.putExtra("USER_ANSWERS", userAnswers);
                 startActivity(intent);
                 finish();
@@ -117,12 +120,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void speakCurrentQuestion() {
-        if (tts == null) return;
+        if (tts == null || !isTtsInitialized) return;
         String raw = questions[currentQuestion];
         String toSpeak = normalizeForTts(raw);
         tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, "Q" + currentQuestion);
     }
-
 
     @Override
     protected void onDestroy() {
