@@ -17,7 +17,7 @@
         android:theme="@style/Theme.Jpp">
 
         <activity
-            android:name=".QuestionnaireActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -25,6 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".ScanActivity" android:exported="false" />
-
+        <activity android:name=".QuestionnaireActivity" android:exported="false" />
     </application>
 </manifest>

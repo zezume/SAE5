@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnScan = findViewById(R.id.btnScan);
 
         btnQuestionnaire.setOnClickListener(v -> {
-//à ajouter : questionnaire
+            Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
+            startActivity(intent);
         });
 
         btnScan.setOnClickListener(v -> {
