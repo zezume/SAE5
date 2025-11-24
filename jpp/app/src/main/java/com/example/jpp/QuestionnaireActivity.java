@@ -1,6 +1,7 @@
 package com.example.jpp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.widget.ArrayAdapter;
@@ -10,6 +11,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.Locale;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.example.jpp.api.ApiClient;
+import com.example.jpp.api.ApiService;
+import com.example.jpp.model.Question;
+import com.example.jpp.model.Reponse;
+import com.example.jpp.model.Utilisateur;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class QuestionnaireActivity extends AppCompatActivity {
     private TextView questionText;
@@ -20,7 +32,13 @@ public class QuestionnaireActivity extends AppCompatActivity {
     private boolean isTtsInitialized = false;
 
     private int currentQuestion = 0;
-    private String[] questions = {
+
+    private long userId = -1;
+    private static final String PREFS_NAME = "JppPrefs";
+    private static final String KEY_USER_ID = "userId";
+
+    // Local fallback questions
+    private String[] localQuestions = {
             "1/10 : En moyenne, combien d’heures par jour passez-vous sur votre smartphone ?",
             "2/10 : Combien de temps passez-vous chaque jour devant un ordinateur ?",
             "3/10 : Combien d’heures de vidéos en streaming regardez-vous par semaine (Netflix, YouTube, Twitch, etc.) ?",
@@ -34,30 +52,37 @@ public class QuestionnaireActivity extends AppCompatActivity {
     };
 
     private String[][] answers = {
-            {"Moins de 2h", "2h à 4h", "4h à 6h", "Plus de 6h"},
-            {"Moins d’1h", "1h à 3h", "3h à 5h", "Plus de 5h"},
-            {"Moins de 3h", "3h à 7h", "7h à 15h", "Plus de 15h"},
-            {"Standard (SD)", "Haute définition (HD)", "Très haute définition (4K ou plus)"},
-            {"Tous les ans", "Tous les 2 ans", "Tous les 3 à 4 ans", "Plus de 4 ans"},
-            {"1 à 2", "3 à 4", "5 à 6", "Plus de 6"},
-            {"Sur votre appareil (mémoire interne/disque dur)", "Sur un cloud (Google Drive, iCloud, etc.)", "Un mélange des deux"},
-            {"Oui, je trie et supprime régulièrement", "Non, je garde tout"},
-            {"Oui", "Non"},
-            {"Oui", "Non"}
+            { "Moins de 2h", "2h à 4h", "4h à 6h", "Plus de 6h" },
+            { "Moins d’1h", "1h à 3h", "3h à 5h", "Plus de 5h" },
+            { "Moins de 3h", "3h à 7h", "7h à 15h", "Plus de 15h" },
+            { "Standard (SD)", "Haute définition (HD)", "Très haute définition (4K ou plus)" },
+            { "Tous les ans", "Tous les 2 ans", "Tous les 3 à 4 ans", "Plus de 4 ans" },
+            { "1 à 2", "3 à 4", "5 à 6", "Plus de 6" },
+            { "Sur votre appareil (mémoire interne/disque dur)", "Sur un cloud (Google Drive, iCloud, etc.)",
+                    "Un mélange des deux" },
+            { "Oui, je trie et supprime régulièrement", "Non, je garde tout" },
+            { "Oui", "Non" },
+            { "Oui", "Non" }
     };
 
+    private List<Question> dbQuestions = new ArrayList<>();
     private String[] userAnswers;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questionnaire);
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        userId = settings.getLong(KEY_USER_ID, -1);
+
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
         submitButton = findViewById(R.id.submitButton);
         backButton = findViewById(R.id.backButton);
 
-        userAnswers = new String[questions.length];
+        userAnswers = new String[localQuestions.length];
 
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
@@ -66,20 +91,29 @@ public class QuestionnaireActivity extends AppCompatActivity {
                     Toast.makeText(this, "TTS: langue Française non disponible", Toast.LENGTH_SHORT).show();
                 } else {
                     isTtsInitialized = true;
-                    speakCurrentQuestion();
                 }
             } else {
                 Toast.makeText(this, "TTS non initialisé", Toast.LENGTH_SHORT).show();
             }
         });
 
-        showQuestion();
+        apiService = ApiClient.getClient().create(ApiService.class);
+        fetchQuestions();
 
         submitButton.setOnClickListener(v -> {
             int selectedIndex = answerSpinner.getSelectedItemPosition();
-            userAnswers[currentQuestion] = String.valueOf(selectedIndex);
+            String selectedValue = (String) answerSpinner.getSelectedItem();
+
+            if (currentQuestion < userAnswers.length) {
+                userAnswers[currentQuestion] = String.valueOf(selectedIndex);
+            }
+
+            sendAnswer(selectedValue);
+
             currentQuestion++;
-            if (currentQuestion < questions.length) {
+            int totalQuestions = dbQuestions.isEmpty() ? localQuestions.length : dbQuestions.size();
+
+            if (currentQuestion < totalQuestions) {
                 showQuestion();
             } else {
                 Intent intent = new Intent(QuestionnaireActivity.this, ScoreActivity.class);
@@ -97,32 +131,110 @@ public class QuestionnaireActivity extends AppCompatActivity {
         });
     }
 
+    private void fetchQuestions() {
+        apiService.getAllQuestions().enqueue(new Callback<List<Question>>() {
+            @Override
+            public void onResponse(Call<List<Question>> call, Response<List<Question>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    dbQuestions = response.body();
+                    if (!dbQuestions.isEmpty()) {
+                        userAnswers = new String[dbQuestions.size()];
+                        showQuestion();
+                    } else {
+                        showQuestion();
+                    }
+                } else {
+                    showQuestion();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Question>> call, Throwable t) {
+                Toast.makeText(QuestionnaireActivity.this, "Mode hors ligne: " + t.getMessage(), Toast.LENGTH_SHORT)
+                        .show();
+                showQuestion();
+            }
+        });
+    }
+
     private void showQuestion() {
-        questionText.setText(questions[currentQuestion]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, answers[currentQuestion]);
+        String qText;
+        String[] qAnswers;
+
+        if (dbQuestions.isEmpty()) {
+            if (currentQuestion < localQuestions.length) {
+                qText = localQuestions[currentQuestion];
+                qAnswers = answers[currentQuestion];
+            } else {
+                return;
+            }
+        } else {
+            if (currentQuestion < dbQuestions.size()) {
+                Question q = dbQuestions.get(currentQuestion);
+                qText = q.getIntitule();
+                if (currentQuestion < answers.length) {
+                    qAnswers = answers[currentQuestion];
+                } else {
+                    qAnswers = new String[] { "Oui", "Non" };
+                }
+            } else {
+                return;
+            }
+        }
+
+        questionText.setText(qText);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, qAnswers);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         answerSpinner.setAdapter(adapter);
-        if (currentQuestion == questions.length - 1) {
+
+        int total = dbQuestions.isEmpty() ? localQuestions.length : dbQuestions.size();
+        if (currentQuestion == total - 1) {
             submitButton.setText("Terminer");
         } else {
             submitButton.setText("Suivant");
         }
-        // Lire la question à voix haute
-        speakCurrentQuestion();
+
+        speakCurrentQuestion(qText);
     }
 
-    // java
+    private void sendAnswer(String value) {
+        if (dbQuestions.isEmpty())
+            return;
+
+        if (currentQuestion < dbQuestions.size()) {
+            Question q = dbQuestions.get(currentQuestion);
+            Utilisateur u = null;
+            if (userId != -1) {
+                u = new Utilisateur(userId);
+            }
+
+            Reponse reponse = new Reponse(q, u, value);
+
+            apiService.createReponse(reponse).enqueue(new Callback<Reponse>() {
+                @Override
+                public void onResponse(Call<Reponse> call, Response<Reponse> response) {
+                    // Silent success
+                }
+
+                @Override
+                public void onFailure(Call<Reponse> call, Throwable t) {
+                    // Silent failure
+                }
+            });
+        }
+    }
+
     private String normalizeForTts(String text) {
-        if (text == null) return "";
-        // Remplace "2/10" ou "2 / 10" par "2 sur 10"
+        if (text == null)
+            return "";
         text = text.replaceAll("(\\d+)\\s*/\\s*(\\d+)", "$1 sur $2");
         return text;
     }
 
-    private void speakCurrentQuestion() {
-        if (tts == null || !isTtsInitialized) return;
-        String raw = questions[currentQuestion];
-        String toSpeak = normalizeForTts(raw);
+    private void speakCurrentQuestion(String text) {
+        if (tts == null || !isTtsInitialized)
+            return;
+        String toSpeak = normalizeForTts(text);
         tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, "Q" + currentQuestion);
     }
 
