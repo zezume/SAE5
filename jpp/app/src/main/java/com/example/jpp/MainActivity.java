@@ -2,36 +2,50 @@ package com.example.jpp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-
-
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.vuzix.hud.actionmenu.ActionMenuActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ActionMenuActivity {
+
+    private TextView title;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btnQuestionnaire = findViewById(R.id.btnQuestionnaire);
-        Button btnScan = findViewById(R.id.btnScan);
+        title = findViewById(R.id.tvTitle);
+        title.setText("Bienvenue");
+    }
 
-        btnQuestionnaire.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
-            startActivity(intent);
-        });
+    @Override
+    protected boolean onCreateActionMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-        btnScan.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-            startActivity(intent);
-        });
+    @Override
+    protected boolean alwaysShowActionMenu() {
+        return true; // Le menu reste affiché en permanence
+    }
+
+    @Override
+    protected int getDefaultAction() {
+        return 0;  // premier item du menu sélectionné par défaut
+    }
+
+    // --- Actions du menu ---
+
+    public void openQuestionnaire(MenuItem item) {
+        Intent intent = new Intent(this, QuestionnaireActivity.class);
+        startActivity(intent);
+    }
+
+    public void openScan(MenuItem item) {
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivity(intent);
     }
 }

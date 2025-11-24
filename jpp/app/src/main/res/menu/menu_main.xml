@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_questionnaire"
+        android:title="Questionnaire"
+        android:onClick="openQuestionnaire"
+        android:actionLayout="@layout/menu_item" />
+
+    <item
+        android:id="@+id/action_scan"
+        android:title="Scanner"
+        android:onClick="openScan"
+        android:actionLayout="@layout/menu_item" />
+
+</menu>
