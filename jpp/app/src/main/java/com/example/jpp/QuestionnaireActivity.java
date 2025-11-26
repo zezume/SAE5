@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import com.example.jpp.api.ApiClient;
 import com.example.jpp.api.ApiService;
 import com.example.jpp.model.Question;
+import com.example.jpp.model.QuestionnaireQuestion;
 import com.example.jpp.model.Reponse;
 import com.example.jpp.model.Utilisateur;
 import retrofit2.Call;
@@ -91,11 +92,9 @@ public class QuestionnaireActivity extends AppCompatActivity {
         ImageView iconBack = backButton.findViewById(R.id.btnIcon);
 
         textSubmit.setText("Suivant");
-        iconSubmit.setImageResource(R.drawable.img_next);
 
         textBack.setText("Retour");
         iconBack.setImageResource(R.drawable.img_back);
-
 
         userAnswers = new String[localQuestions.length];
 
@@ -147,11 +146,19 @@ public class QuestionnaireActivity extends AppCompatActivity {
     }
 
     private void fetchQuestions() {
-        apiService.getAllQuestions().enqueue(new Callback<List<Question>>() {
+        apiService.getQuestionsByQuestionnaire(1L).enqueue(new Callback<List<QuestionnaireQuestion>>() {
             @Override
-            public void onResponse(Call<List<Question>> call, Response<List<Question>> response) {
+            public void onResponse(Call<List<QuestionnaireQuestion>> call,
+                    Response<List<QuestionnaireQuestion>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    dbQuestions = response.body();
+                    List<QuestionnaireQuestion> qqs = response.body();
+                    dbQuestions = new ArrayList<>();
+                    for (QuestionnaireQuestion qq : qqs) {
+                        if (qq.getQuestion() != null) {
+                            dbQuestions.add(qq.getQuestion());
+                        }
+                    }
+
                     if (!dbQuestions.isEmpty()) {
                         userAnswers = new String[dbQuestions.size()];
                         showQuestion();
@@ -164,7 +171,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Question>> call, Throwable t) {
+            public void onFailure(Call<List<QuestionnaireQuestion>> call, Throwable t) {
                 Toast.makeText(QuestionnaireActivity.this, "Mode hors ligne: " + t.getMessage(), Toast.LENGTH_SHORT)
                         .show();
                 showQuestion();
@@ -187,10 +194,19 @@ public class QuestionnaireActivity extends AppCompatActivity {
             if (currentQuestion < dbQuestions.size()) {
                 Question q = dbQuestions.get(currentQuestion);
                 qText = q.getIntitule();
-                if (currentQuestion < answers.length) {
-                    qAnswers = answers[currentQuestion];
+
+                List<Reponse> reponses = q.getReponses();
+                if (reponses != null && !reponses.isEmpty()) {
+                    qAnswers = new String[reponses.size()];
+                    for (int i = 0; i < reponses.size(); i++) {
+                        qAnswers[i] = reponses.get(i).getReponse();
+                    }
                 } else {
-                    qAnswers = new String[] { "Oui", "Non" };
+                    if (currentQuestion < answers.length) {
+                        qAnswers = answers[currentQuestion];
+                    } else {
+                        qAnswers = new String[] { "Oui", "Non" };
+                    }
                 }
             } else {
                 return;

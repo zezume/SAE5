@@ -37,4 +37,14 @@ public class Question {
     public void setType(String type) {
         this.type = type;
     }
+
+    private java.util.List<Reponse> reponses;
+
+    public java.util.List<Reponse> getReponses() {
+        return reponses;
+    }
+
+    public void setReponses(java.util.List<Reponse> reponses) {
+        this.reponses = reponses;
+    }
 }

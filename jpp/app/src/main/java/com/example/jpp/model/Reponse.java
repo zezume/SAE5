@@ -4,12 +4,19 @@ public class Reponse {
     private Long idReponse;
     private Question question;
     private Utilisateur utilisateur;
+    private Boolean bonne;
     private String reponse;
 
-    public Reponse(Question question, Utilisateur utilisateur, String reponse) {
+    public Reponse(Question question, Utilisateur utilisateur, String reponse, Boolean bonne) {
         this.question = question;
         this.utilisateur = utilisateur;
         this.reponse = reponse;
+        this.bonne = bonne;
+    }
+    
+    // Constructor for backward compatibility if needed, or just update usages
+    public Reponse(Question question, Utilisateur utilisateur, String reponse) {
+        this(question, utilisateur, reponse, false);
     }
 
     public Long getIdReponse() {
@@ -42,5 +49,18 @@ public class Reponse {
 
     public void setReponse(String reponse) {
         this.reponse = reponse;
+    }
+
+    public Boolean getBonne() {
+        return bonne;
+    }
+
+    public void setBonne(Boolean bonne) {
+        this.bonne = bonne;
+    }
+
+    @Override
+    public String toString() {
+        return reponse;
     }
 }

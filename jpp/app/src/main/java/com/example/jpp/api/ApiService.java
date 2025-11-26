@@ -28,4 +28,11 @@ public interface ApiService {
     // Conseil endpoints
     @GET("api/conseils")
     Call<List<Conseil>> getAllConseils();
+
+    @GET("api/questionnaires/{id}/questions")
+    Call<List<com.example.jpp.model.QuestionnaireQuestion>> getQuestionsByQuestionnaire(
+            @retrofit2.http.Path("id") Long id);
+
+    @GET("api/reponses/question/{idQuestion}")
+    Call<List<Reponse>> getReponsesByQuestion(@retrofit2.http.Path("idQuestion") Long idQuestion);
 }

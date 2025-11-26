@@ -81,6 +81,11 @@ public class ScanActivity extends AppCompatActivity {
                     Log.d(TAG, "Résultat: " + resultText);
                     tvResult.setText(resultText);
 
+                    // Return result to caller
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("SCAN_RESULT", resultText);
+                    setResult(Activity.RESULT_OK, resultIntent);
+
                     if (resultText.startsWith("http://") || resultText.startsWith("https://")) {
                         try {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(resultText));
@@ -90,7 +95,7 @@ public class ScanActivity extends AppCompatActivity {
                             Log.e(TAG, "Erreur ouverture lien", e);
                         }
                     }
-
+                    finish();
                 } else {
                     Log.d(TAG, "Aucune donnée");
                     tvResult.setText("Aucune donnée");

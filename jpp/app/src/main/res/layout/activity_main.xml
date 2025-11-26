@@ -37,9 +37,9 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="Chargement du conseil du jour..."
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textAlignment="center"
-            android:textColor="@color/white"/>
+            android:textColor="@android:color/white"/>
 
     </com.google.android.material.card.MaterialCardView>
 
