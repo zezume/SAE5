@@ -15,16 +15,16 @@ public class ScoreActivity extends AppCompatActivity {
 
     // Facteurs d'impact et moyennes nationales
     private final double[][] impactFactors = {
-            { 50, 100, 150, 200 }, // Smartphone (gCO2/jour)
-            { 30, 80, 120, 180 }, // Ordinateur (gCO2/jour)
-            { 200, 500, 1000, 1500 }, // Streaming (gCO2/semaine)
-            { 1.0, 1.5, 3.0 }, // Qualité vidéo (multiplicateur)
-            { 300, 150, 100, 75 }, // Renouvellement smartphone (gCO2/jour)
-            { 200, 400, 600, 800 }, // Nombre d'appareils (gCO2/jour)
-            { 50, 100, 75 }, // Stockage (gCO2/jour)
-            { 20, 50 }, // Mails (gCO2/jour)
-            { 0.8, 1.0 }, // Réparation (multiplicateur)
-            { 1.0, 1.2 } // Sensibilisation (multiplicateur)
+            {50, 100, 150, 200},    // Smartphone
+            {30, 80, 120, 180},     // Ordinateur
+            {50, 80, 100, 200}, // Streaming
+            {50, 100, 150},        // Qualité vidéo
+            {300, 200, 120, 75},    // Renouvellement smartphone
+            {50, 100, 200, 250},   // Nombre d'appareils
+            {50, 100, 75},          // Stockage
+            {20, 50},               // Mails
+            {0.8, 1.0},             // Réparation
+            {1.0, 1.2}              // Sensibilisation
     };
 
     private final double[] moyennesNationales = {
