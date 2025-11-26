@@ -73,12 +73,17 @@ public class ScoreActivity extends AppCompatActivity {
                     String currentText = interpretationText.getText().toString();
                     String adviceText = "\n\nConseil : " + conseil.getTitre() + "\n" + conseil.getDescription();
                     interpretationText.setText(currentText + adviceText);
+                } else {
+                    android.widget.Toast
+                            .makeText(ScoreActivity.this, "Aucun conseil disponible", android.widget.Toast.LENGTH_SHORT)
+                            .show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Conseil>> call, Throwable t) {
-                // Ignore failure
+                android.widget.Toast.makeText(ScoreActivity.this, "Erreur récupération conseil: " + t.getMessage(),
+                        android.widget.Toast.LENGTH_SHORT).show();
             }
         });
     }
