@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Couleur quand le bouton est pressé -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#1565C0"/> <!-- Bleu foncé -->
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+
+    <!-- Couleur quand le bouton a le focus (sélectionné sur les lunettes) -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#1E88E5"/> <!-- Bleu vif -->
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+
+    <!-- Couleur par défaut -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#2196F3"/> <!-- Bleu normal -->
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+
+</selector>

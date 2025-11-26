@@ -44,9 +44,6 @@ public class MainActivity extends ActionMenuActivity {
         sView.setText("Scanner");
         sIcon.setImageResource(R.drawable.img_menu_qrcode);
 
-        // ---- Contour épais pour item actif (optionnel) ----
-        qView.setBackgroundResource(R.drawable.menu_item_active);
-
         return true;
     }
 
