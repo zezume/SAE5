@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,10 +36,25 @@ public class ScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan);
 
         tvResult = findViewById(R.id.tvResult);
-        Button btnScan = findViewById(R.id.btnScan);
-        Button btnRetour = findViewById(R.id.btnRetour);
+
+        // Nouveau bouton stylé Scan
+        LinearLayout btnScan = findViewById(R.id.btnScan);
+        TextView textScan = btnScan.findViewById(R.id.btnText);
+        ImageView iconScan = btnScan.findViewById(R.id.btnIcon);
+
+        textScan.setText("Scanner un code-barres");
+        iconScan.setImageResource(R.drawable.img_menu_qrcode);
 
         btnScan.setOnClickListener(v -> startScan());
+
+        // bouton Retour
+        LinearLayout btnRetour = findViewById(R.id.btnRetour);
+        TextView textRetour = btnRetour.findViewById(R.id.btnText);
+        ImageView iconRetour = btnRetour.findViewById(R.id.btnIcon);
+
+        textRetour.setText("Retour");
+        iconRetour.setImageResource(R.drawable.img_back);
+
         btnRetour.setOnClickListener(v -> finish());
     }
 

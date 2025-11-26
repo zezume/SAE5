@@ -98,7 +98,7 @@ public class MainActivity extends ActionMenuActivity {
     }
 
     public void openEscape(MenuItem item) {
-        Intent intent = new Intent(this, ScanActivity.class);
+        Intent intent = new Intent(this, escape_game_activity.class);
         startActivity(intent);
     }
 
