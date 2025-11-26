@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@color/black">
+
+    <!-- Titre centré -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bienvenue"
+        android:textColor="@android:color/white"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"/>
+
+    <!-- CardView ajoutée sous le titre -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardConseil"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        android:layout_below="@id/tvTitle">
+
+        <TextView
+            android:id="@+id/tvConseil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Chargement du conseil du jour..."
+            android:textSize="16sp"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"/>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</RelativeLayout>
