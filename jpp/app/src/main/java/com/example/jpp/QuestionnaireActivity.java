@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,8 +28,8 @@ import retrofit2.Response;
 public class QuestionnaireActivity extends AppCompatActivity {
     private TextView questionText;
     private Spinner answerSpinner;
-    private Button submitButton;
-    private Button backButton;
+    private LinearLayout submitButton;
+    private LinearLayout backButton;
     private TextToSpeech tts;
     private boolean isTtsInitialized = false;
 
@@ -79,8 +81,21 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
-        submitButton = findViewById(R.id.submitButton);
-        backButton = findViewById(R.id.backButton);
+        submitButton = findViewById(R.id.btnSubmit);
+        backButton = findViewById(R.id.btnBack);
+
+        TextView textSubmit = submitButton.findViewById(R.id.btnText);
+        ImageView iconSubmit = submitButton.findViewById(R.id.btnIcon);
+
+        TextView textBack = backButton.findViewById(R.id.btnText);
+        ImageView iconBack = backButton.findViewById(R.id.btnIcon);
+
+        textSubmit.setText("Suivant");
+        iconSubmit.setImageResource(R.drawable.img_next);
+
+        textBack.setText("Retour");
+        iconBack.setImageResource(R.drawable.img_back);
+
 
         userAnswers = new String[localQuestions.length];
 
@@ -188,10 +203,11 @@ public class QuestionnaireActivity extends AppCompatActivity {
         answerSpinner.setAdapter(adapter);
 
         int total = dbQuestions.isEmpty() ? localQuestions.length : dbQuestions.size();
+        TextView textSubmit = submitButton.findViewById(R.id.btnText);
         if (currentQuestion == total - 1) {
-            submitButton.setText("Terminer");
+            textSubmit.setText("Terminer");
         } else {
-            submitButton.setText("Suivant");
+            textSubmit.setText("Suivant");
         }
 
         speakCurrentQuestion(qText);
