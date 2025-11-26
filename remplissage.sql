@@ -35,10 +35,10 @@ VALUES
     (2, 2, '1h à 3h'),
     (2, 3, '3h à 5h'),
     (2, 4, 'Plus de 5h'),
-    (3, 1, 'Moins de 3h'),
-    (3, 2, '3h à 7h'),
-    (3, 3, '7h à 15h'),
-    (3, 4, 'Plus de 15h'),
+    (3, 1, 'Moins de 10h'),
+    (3, 2, '10h à 25h'),
+    (3, 3, '25h à 35h'),
+    (3, 4, 'Plus de 35h'),
     (4, 1, 'Standard (SD)'),
     (4, 2, 'Haute définition (HD)'),
     (4, 3, 'Très haute définition (4K ou plus)'),
@@ -177,3 +177,4 @@ INSERT INTO Conseil (titre, description, type) VALUES
                                                    ('Privilégier les applications web légères', 'Réduit l’utilisation des ressources locales et serveur.', 'energie'),
                                                    ('Désactiver la synchronisation automatique non essentielle', 'Réduit la consommation réseau et serveur.', 'energie'),
                                                    ('Sensibiliser les collègues et utilisateurs', 'Partager les bonnes pratiques Green IT pour multiplier l’impact positif.', 'autre');
+
