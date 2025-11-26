@@ -20,31 +20,38 @@ public class escape_game_activity extends AppCompatActivity {
     private boolean isTtsInitialized = false;
 
     private int currentQuestion = 0;
-    private String[] questions = {
-            "1/10 : Combien de gramme de CO2 equivaut a un mail de 1Mo ?",
-            "2/10 : Combien de kilommetre en voiture équivaut a la duré de vie d'un ordinateur ?",
-            "3/10 : Quelle est la cause principale de l'emission de CO2 d'une tablette ?",
-            "4/10 : Ecouter la radio pendant 1h equivaut a moins qu'un streaming sur internet ? vrai ou faux",
-            "5/10 : D'ou provient 80% des emission de CO2 des appareils numerique ?",
-            "6/10 : Combien d'année faut-il garder son smartphone pour diviser par deux l'empreinte numerique par rapport a une durée de 2ans ?",
-            "7/10 : Le cloud est-il une solution qui n'emet pas de CO2 ?",
-            "8/10 : Quel geste simple permet de réduire significativement la consommation énergétique d'un smartphone ?",
-            "9/10 : Quel élément consomme le plus d’énergie lors d’une visioconférence ?",
-            "10/10 : Est-il plus écologique de réparer un ordinateur plutôt que d'en acheter un neuf ?"
-    };
 
-    private String[][] answers = {
-            {"A. 20 g de CO₂", "B. 10 g de CO₂", "C. 3 g de CO₂"},
-            {"A. 800 km", "B. 1 000 km", "C. 1 400 km"},
-            {"A. Le transport du produit", "B. La fabrication de l’appareil", "C. L’utilisation quotidienne"},
-            {"Vrai", "Faux"},
-            {"A. De leur utilisation", "B. De leur fin de vie (recyclage)", "C. De leur fabrication"},
-            {"A. 3 ans", "B. 4 ans", "C. 5 ans"},
-            {"Vrai", "Faux"},
-            {"A. Réduire la luminosité de l’écran", "B. Désactiver le mode avion", "C. Utiliser un fond d’écran animé"},
-            {"A. La caméra vidéo", "B. Le micro", "C. Le chargement de la page web"},
-            {"Vrai", "Faux"}
-    };
+
+    private String[] questions;
+    private String[][] answers;
+    apiService.getQuestions().enqueue(new Callback<List<Question>>() {
+        @Override
+        public void onResponse(Call<List<Question>> call, Response<List<Question>> response){
+            if (response.isSuccessful()) {
+                List<Question> questionsList = response.body();
+                questions = new String[questionsList.size()];
+                // TODO
+            }
+            else
+            {
+                Toast.makeText(escape_game_activity.this, "Erreur de récupération des questions", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+    }
+    apiService.getAnswers().enqueue(new Callback<List<Answer>>() {
+        @Override
+        public void onResponse(Call<List<Answer>> call, Response<List<Answer>> response){
+            if (response.isSuccessful()) {
+                List<Answer> answersList = response.body();
+                answers = new String[answersList.size()][];
+                // TODO
+            }
+            else {
+                Toast.makeText(escape_game_activity.this, "Erreur de récupération des réponses", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     private String[] userAnswers;
 
