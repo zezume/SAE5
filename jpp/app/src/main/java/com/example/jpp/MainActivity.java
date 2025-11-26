@@ -2,7 +2,11 @@ package com.example.jpp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -12,7 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+    private TextView title;
 
 import android.content.SharedPreferences;
 import com.example.jpp.api.ApiClient;
@@ -38,10 +42,28 @@ public class MainActivity extends AppCompatActivity {
         Button btnQuestionnaire = findViewById(R.id.btnQuestionnaire);
         Button btnScan = findViewById(R.id.btnScan);
 
-        btnQuestionnaire.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
-            startActivity(intent);
-        });
+        sView.setText("Scanner");
+        sIcon.setImageResource(R.drawable.img_menu_qrcode);
+
+        return true;
+    }
+
+    @Override
+    protected boolean alwaysShowActionMenu() {
+        return true; // Le menu reste affiché en permanence
+    }
+
+    @Override
+    protected int getDefaultAction() {
+        return 0;  // premier item du menu sélectionné par défaut
+    }
+
+    // --- Actions du menu ---
+
+    public void openQuestionnaire(MenuItem item) {
+        Intent intent = new Intent(this, QuestionnaireActivity.class);
+        startActivity(intent);
+    }
 
         btnScan.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ScanActivity.class);
