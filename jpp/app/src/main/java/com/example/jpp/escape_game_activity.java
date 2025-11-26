@@ -11,7 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.Locale;
 
-public class escape_game extends AppCompatActivity {
+public class escape_game_activity extends AppCompatActivity {
     private TextView questionText;
     private Spinner answerSpinner;
     private Button submitButton;
@@ -51,7 +51,7 @@ public class escape_game extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_questionnaire);
+        setContentView(R.layout.activity_escape_game);
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
         submitButton = findViewById(R.id.submitButton);
@@ -75,19 +75,29 @@ public class escape_game extends AppCompatActivity {
 
         showQuestion();
 
+        // ... (dans la méthode onCreate, après l'initialisation des boutons)
+
         submitButton.setOnClickListener(v -> {
             int selectedIndex = answerSpinner.getSelectedItemPosition();
-            userAnswers[currentQuestion] = String.valueOf(selectedIndex);
+            String[] letterMap = {"A", "B", "C", "D"};
+
+            if (selectedIndex >= 0 && selectedIndex < letterMap.length) {
+                userAnswers[currentQuestion] = letterMap[selectedIndex];
+            } else {
+                userAnswers[currentQuestion] = "";
+            }
+
             currentQuestion++;
             if (currentQuestion < questions.length) {
                 showQuestion();
             } else {
-                Intent intent = new Intent(escape_game.this, ScoreActivity.class);
+                Intent intent = new Intent(escape_game_activity.this, escape_result_activity.class);
                 intent.putExtra("USER_ANSWERS", userAnswers);
                 startActivity(intent);
                 finish();
             }
         });
+
 
         backButton.setOnClickListener(v -> {
             if (currentQuestion > 0) {
