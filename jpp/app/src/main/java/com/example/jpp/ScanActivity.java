@@ -15,22 +15,12 @@ import com.vuzix.sdk.barcode.BarcodeType2;
 import com.vuzix.sdk.barcode.ScanResult2;
 import com.vuzix.sdk.barcode.ScannerIntent;
 
-import com.example.jpp.api.ApiClient;
-import com.example.jpp.api.ApiService;
-import com.example.jpp.model.Conseil;
-import java.util.List;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class ScanActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SCAN = 90001;
     private static final String TAG = "VUZIX_BARCODE";
     private boolean cameraToggle = false;
 
     private TextView tvResult;
-    private TextView tvConseil;
-    private ApiService apiService;
 
     private final String[] requestedBarcodeTypes = {
             BarcodeType2.QR_CODE.name(),
@@ -44,11 +34,8 @@ public class ScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan);
 
         tvResult = findViewById(R.id.tvResult);
-        tvConseil = findViewById(R.id.tvConseil);
         Button btnScan = findViewById(R.id.btnScan);
         Button btnRetour = findViewById(R.id.btnRetour);
-
-        apiService = ApiClient.getClient().create(ApiService.class);
 
         btnScan.setOnClickListener(v -> startScan());
         btnRetour.setOnClickListener(v -> finish());
@@ -77,9 +64,6 @@ public class ScanActivity extends AppCompatActivity {
                     Log.d(TAG, "Résultat: " + resultText);
                     tvResult.setText(resultText);
 
-                    // Fetch and display advice
-                    fetchAndDisplayAdvice();
-
                     if (resultText.startsWith("http://") || resultText.startsWith("https://")) {
                         try {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(resultText));
@@ -98,28 +82,5 @@ public class ScanActivity extends AppCompatActivity {
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void fetchAndDisplayAdvice() {
-        tvConseil.setText("Chargement du conseil...");
-        apiService.getAllConseils().enqueue(new Callback<List<Conseil>>() {
-            @Override
-            public void onResponse(Call<List<Conseil>> call, Response<List<Conseil>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    List<Conseil> conseils = response.body();
-                    int randomIndex = (int) (Math.random() * conseils.size());
-                    Conseil conseil = conseils.get(randomIndex);
-                    tvConseil.setText("Conseil : " + conseil.getTitre() + "\n" + conseil.getDescription());
-                } else {
-                    tvConseil.setText("Pas de conseil disponible.");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Conseil>> call, Throwable t) {
-                tvConseil.setText("Erreur lors du chargement du conseil : " + t.getMessage());
-                Log.e(TAG, "Erreur API", t);
-            }
-        });
     }
 }

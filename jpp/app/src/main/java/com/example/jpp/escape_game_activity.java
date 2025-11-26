@@ -9,7 +9,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.jpp.api.ApiClient;
+import com.example.jpp.api.ApiService;
+import com.example.jpp.model.Question;
+
+import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class escape_game_activity extends AppCompatActivity {
     private TextView questionText;
@@ -21,50 +31,23 @@ public class escape_game_activity extends AppCompatActivity {
 
     private int currentQuestion = 0;
 
-
     private String[] questions;
     private String[][] answers;
-    apiService.getQuestions().enqueue(new Callback<List<Question>>() {
-        @Override
-        public void onResponse(Call<List<Question>> call, Response<List<Question>> response){
-            if (response.isSuccessful()) {
-                List<Question> questionsList = response.body();
-                questions = new String[questionsList.size()];
-                // TODO
-            }
-            else
-            {
-                Toast.makeText(escape_game_activity.this, "Erreur de récupération des questions", Toast.LENGTH_SHORT).show();
-            }
-
-        }
-    }
-    apiService.getAnswers().enqueue(new Callback<List<Answer>>() {
-        @Override
-        public void onResponse(Call<List<Answer>> call, Response<List<Answer>> response){
-            if (response.isSuccessful()) {
-                List<Answer> answersList = response.body();
-                answers = new String[answersList.size()][];
-                // TODO
-            }
-            else {
-                Toast.makeText(escape_game_activity.this, "Erreur de récupération des réponses", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     private String[] userAnswers;
+
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_escape_game);
+
         questionText = findViewById(R.id.questionText);
         answerSpinner = findViewById(R.id.answerSpinner);
         submitButton = findViewById(R.id.submitButton);
         backButton = findViewById(R.id.backButton);
 
-        userAnswers = new String[questions.length];
+        apiService = ApiClient.getClient().create(ApiService.class);
 
         tts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
@@ -73,20 +56,24 @@ public class escape_game_activity extends AppCompatActivity {
                     Toast.makeText(this, "TTS: langue Française non disponible", Toast.LENGTH_SHORT).show();
                 } else {
                     isTtsInitialized = true;
-                    speakCurrentQuestion();
+                    if (questions != null && questions.length > 0) {
+                        speakCurrentQuestion();
+                    }
                 }
             } else {
                 Toast.makeText(this, "TTS non initialisé", Toast.LENGTH_SHORT).show();
             }
         });
 
-        showQuestion();
-
-        // ... (dans la méthode onCreate, après l'initialisation des boutons)
+        loadQuestions();
 
         submitButton.setOnClickListener(v -> {
+            if (questions == null || answers == null)
+                return;
+
             int selectedIndex = answerSpinner.getSelectedItemPosition();
-            String[] letterMap = {"A", "B", "C", "D"};
+            // Assuming answers are mapped to A, B, C, D...
+            String[] letterMap = { "A", "B", "C", "D" };
 
             if (selectedIndex >= 0 && selectedIndex < letterMap.length) {
                 userAnswers[currentQuestion] = letterMap[selectedIndex];
@@ -105,7 +92,6 @@ public class escape_game_activity extends AppCompatActivity {
             }
         });
 
-
         backButton.setOnClickListener(v -> {
             if (currentQuestion > 0) {
                 currentQuestion--;
@@ -114,11 +100,47 @@ public class escape_game_activity extends AppCompatActivity {
         });
     }
 
+    private void loadQuestions() {
+        apiService.getAllQuestions().enqueue(new Callback<List<Question>>() {
+            @Override
+            public void onResponse(Call<List<Question>> call, Response<List<Question>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Question> questionsList = response.body();
+                    questions = new String[questionsList.size()];
+                    answers = new String[questionsList.size()][];
+                    userAnswers = new String[questionsList.size()];
+
+                    for (int i = 0; i < questionsList.size(); i++) {
+                        questions[i] = questionsList.get(i).getIntitule();
+                        // Mock answers since API doesn't provide them yet
+                        answers[i] = new String[] { "Option A", "Option B", "Option C", "Option D" };
+                    }
+
+                    showQuestion();
+                } else {
+                    Toast.makeText(escape_game_activity.this, "Erreur de récupération des questions",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Question>> call, Throwable t) {
+                Toast.makeText(escape_game_activity.this, "Erreur réseau: " + t.getMessage(), Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+    }
+
     private void showQuestion() {
+        if (questions == null || questions.length == 0)
+            return;
+
         questionText.setText(questions[currentQuestion]);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, answers[currentQuestion]);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
+                answers[currentQuestion]);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         answerSpinner.setAdapter(adapter);
+
         if (currentQuestion == questions.length - 1) {
             submitButton.setText("Terminer");
         } else {
@@ -128,16 +150,17 @@ public class escape_game_activity extends AppCompatActivity {
         speakCurrentQuestion();
     }
 
-    // java
     private String normalizeForTts(String text) {
-        if (text == null) return "";
+        if (text == null)
+            return "";
         // Remplace "2/10" ou "2 / 10" par "2 sur 10"
         text = text.replaceAll("(\\d+)\\s*/\\s*(\\d+)", "$1 sur $2");
         return text;
     }
 
     private void speakCurrentQuestion() {
-        if (tts == null || !isTtsInitialized) return;
+        if (tts == null || !isTtsInitialized || questions == null)
+            return;
         String raw = questions[currentQuestion];
         String toSpeak = normalizeForTts(raw);
         tts.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null, "Q" + currentQuestion);
