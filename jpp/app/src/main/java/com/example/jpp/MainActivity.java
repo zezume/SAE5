@@ -8,39 +8,38 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.vuzix.hud.actionmenu.ActionMenuActivity;
+
+public class MainActivity extends ActionMenuActivity {
 
     private TextView title;
-
-import android.content.SharedPreferences;
-import com.example.jpp.api.ApiClient;
-import com.example.jpp.api.ApiService;
-import com.example.jpp.model.Utilisateur;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class MainActivity extends AppCompatActivity {
-    private ApiService apiService;
-    private static final String PREFS_NAME = "JppPrefs";
-    private static final String KEY_USER_ID = "userId";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        apiService = ApiClient.getClient().create(ApiService.class);
-        checkUser();
+        title = findViewById(R.id.tvTitle);
+        title.setText("Bienvenue");
+    }
+    @Override
+    protected boolean onCreateActionMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        Button btnQuestionnaire = findViewById(R.id.btnQuestionnaire);
-        Button btnScan = findViewById(R.id.btnScan);
+        // ---- Questionnaire ----
+        MenuItem questionnaireItem = menu.findItem(R.id.action_questionnaire);
+        LinearLayout qLayout = (LinearLayout) questionnaireItem.getActionView();
+        TextView qView = qLayout.findViewById(R.id.menuItemText);
+        ImageView qIcon = qLayout.findViewById(R.id.menuItemIcon);
+
+        qView.setText("Questionnaire");
+        qIcon.setImageResource(R.drawable.img_menu_question);
+
+        // ---- Scan ----
+        MenuItem scanItem = menu.findItem(R.id.action_scan);
+        LinearLayout sLayout = (LinearLayout) scanItem.getActionView();
+        TextView sView = sLayout.findViewById(R.id.menuItemText);
+        ImageView sIcon = sLayout.findViewById(R.id.menuItemIcon);
 
         sView.setText("Scanner");
         sIcon.setImageResource(R.drawable.img_menu_qrcode);
@@ -65,87 +64,8 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-        btnScan.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-            startActivity(intent);
-        });
-
-        loadConseilDuJour();
-    }
-
-    private void loadConseilDuJour() {
-        TextView tvConseil = findViewById(R.id.tvConseil);
-        apiService.getAllConseils().enqueue(new Callback<java.util.List<com.example.jpp.model.Conseil>>() {
-            @Override
-            public void onResponse(Call<java.util.List<com.example.jpp.model.Conseil>> call,
-                    Response<java.util.List<com.example.jpp.model.Conseil>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    java.util.List<com.example.jpp.model.Conseil> conseils = response.body();
-                    int randomIndex = (int) (Math.random() * conseils.size());
-                    com.example.jpp.model.Conseil conseil = conseils.get(randomIndex);
-                    tvConseil.setText("Conseil du jour :\n" + conseil.getTitre() + "\n" + conseil.getDescription());
-                } else {
-                    tvConseil.setText("Aucun conseil disponible pour le moment.");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<java.util.List<com.example.jpp.model.Conseil>> call, Throwable t) {
-                tvConseil.setText("Impossible de charger le conseil du jour.");
-            }
-        });
-    }
-
-    private void checkUser() {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        long userId = settings.getLong(KEY_USER_ID, -1);
-
-        if (userId == -1) {
-            // No user found, try to find by email or create
-            String email = "android@example.com";
-            apiService.getUtilisateurByEmail(email).enqueue(new Callback<Utilisateur>() {
-                @Override
-                public void onResponse(Call<Utilisateur> call, Response<Utilisateur> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        saveUserId(response.body().getIdUtilisateur());
-                    } else {
-                        // User not found, create new
-                        createDefaultUser();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Utilisateur> call, Throwable t) {
-                    // Network error, maybe try again later or ignore
-                }
-            });
-        }
-    }
-
-    private void createDefaultUser() {
-        Utilisateur newUser = new Utilisateur();
-        newUser.setNom("Android User");
-        newUser.setEmail("android@example.com");
-
-        apiService.createUtilisateur(newUser).enqueue(new Callback<Utilisateur>() {
-            @Override
-            public void onResponse(Call<Utilisateur> call, Response<Utilisateur> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    saveUserId(response.body().getIdUtilisateur());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Utilisateur> call, Throwable t) {
-                // Failed to create
-            }
-        });
-    }
-
-    private void saveUserId(Long id) {
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putLong(KEY_USER_ID, id);
-        editor.apply();
+    public void openScan(MenuItem item) {
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivity(intent);
     }
 }
