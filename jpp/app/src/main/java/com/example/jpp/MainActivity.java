@@ -27,22 +27,25 @@ public class MainActivity extends ActionMenuActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         // ---- Questionnaire ----
-        MenuItem questionnaireItem = menu.findItem(R.id.action_questionnaire);
-        LinearLayout qLayout = (LinearLayout) questionnaireItem.getActionView();
+        LinearLayout qLayout = (LinearLayout) menu.findItem(R.id.action_questionnaire).getActionView();
         TextView qView = qLayout.findViewById(R.id.menuItemText);
         ImageView qIcon = qLayout.findViewById(R.id.menuItemIcon);
-
         qView.setText("Questionnaire");
         qIcon.setImageResource(R.drawable.img_menu_question);
 
         // ---- Scan ----
-        MenuItem scanItem = menu.findItem(R.id.action_scan);
-        LinearLayout sLayout = (LinearLayout) scanItem.getActionView();
+        LinearLayout sLayout = (LinearLayout) menu.findItem(R.id.action_scan).getActionView();
         TextView sView = sLayout.findViewById(R.id.menuItemText);
         ImageView sIcon = sLayout.findViewById(R.id.menuItemIcon);
-
         sView.setText("Scanner");
         sIcon.setImageResource(R.drawable.img_menu_qrcode);
+
+        // ---- Escape Game ----
+        LinearLayout eLayout = (LinearLayout) menu.findItem(R.id.action_escape).getActionView();
+        TextView eView = eLayout.findViewById(R.id.menuItemText);
+        ImageView eIcon = eLayout.findViewById(R.id.menuItemIcon);
+        eView.setText("Escape Game");
+        eIcon.setImageResource(R.drawable.img_menu_escape);
 
         return true;
     }
@@ -68,4 +71,9 @@ public class MainActivity extends ActionMenuActivity {
         Intent intent = new Intent(this, ScanActivity.class);
         startActivity(intent);
     }
+    public void openEscape(MenuItem item) {
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivity(intent);
+    }
+
 }
