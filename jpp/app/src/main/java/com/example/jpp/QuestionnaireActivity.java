@@ -2,6 +2,7 @@ package com.example.jpp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.widget.ArrayAdapter;
@@ -76,6 +77,9 @@ public class QuestionnaireActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questionnaire);
+        SharedPreferences prefs = getSharedPreferences("JppPrefs", MODE_PRIVATE);
+        int color = prefs.getInt("bg_color", Color.WHITE);
+        findViewById(android.R.id.content).setBackgroundColor(color);
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         userId = settings.getLong(KEY_USER_ID, -1);

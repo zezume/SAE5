@@ -2,6 +2,7 @@ package com.example.jpp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +37,9 @@ public class MainActivity extends ActionMenuActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SharedPreferences prefs = getSharedPreferences("JppPrefs", MODE_PRIVATE);
+        int color = prefs.getInt("bg_color", Color.WHITE);
+        findViewById(android.R.id.content).setBackgroundColor(color);
 
         title = findViewById(R.id.tvTitle);
         title.setText("Bienvenue");
@@ -72,6 +76,13 @@ public class MainActivity extends ActionMenuActivity {
         eView.setText("Escape Game");
         eIcon.setImageResource(R.drawable.img_menu_escape);
 
+        // settings
+        LinearLayout settingsLayout = (LinearLayout) menu.findItem(R.id.action_settings).getActionView();
+        TextView settingsView = settingsLayout.findViewById(R.id.menuItemText);
+        ImageView settingsIcon = settingsLayout.findViewById(R.id.menuItemIcon);
+        settingsView.setText("Réglage");
+        settingsIcon.setImageResource(R.drawable.img_menu_settings);
+
         return true;
     }
 
@@ -99,6 +110,10 @@ public class MainActivity extends ActionMenuActivity {
 
     public void openEscape(MenuItem item) {
         Intent intent = new Intent(this, escape_game_activity.class);
+        startActivity(intent);
+    }
+    public void openSettings(MenuItem item) {
+        Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 

@@ -1,5 +1,7 @@
 package com.example.jpp;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,6 +50,9 @@ public class ScoreActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score);
+        SharedPreferences prefs = getSharedPreferences("JppPrefs", MODE_PRIVATE);
+        int color = prefs.getInt("bg_color", Color.WHITE);
+        findViewById(android.R.id.content).setBackgroundColor(color);
 
         String[] userAnswers = getIntent().getStringArrayExtra("USER_ANSWERS");
 
